@@ -1,0 +1,7 @@
+rootProject.name = 'naumen23'
+
+include 'sampleStart'
+include 'sampleThreads:data-server'
+include 'sampleThreads:eureka-server'
+include 'sampleThreads:db-server'
+
