@@ -1,0 +1,32 @@
+version: '2.1'
+
+services:
+
+  eureka:
+    build: eureka-server
+    mem_limit: 512m
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_HOSTNAME=localhost
+
+
+  db-server:
+    build: db-server
+    mem_limit: 512m
+    ports:
+      - "12001:12001"
+    environment:
+      - EUREKA_HOSTNAME=localhost
+    depends_on:
+      - eureka
+
+  data-server:
+    build: data-server-res
+    mem_limit: 512m
+    ports:
+      - "12002:12002"
+    environment:
+      - EUREKA_HOSTNAME=localhost
+    depends_on:
+      - eureka
