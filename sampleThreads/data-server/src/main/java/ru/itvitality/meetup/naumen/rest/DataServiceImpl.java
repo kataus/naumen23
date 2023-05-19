@@ -29,11 +29,17 @@ public class DataServiceImpl implements DataService{
                     .toUri()
         );
         var parameterizedTypeReference = new ParameterizedTypeReference<AnyData>() {};
-        var response = restTemplate.exchange( request, parameterizedTypeReference );
-        if ( ! response.getStatusCode().is2xxSuccessful() ) {
-            log.error( "Can't get sensors meta info, request {}, response status {}", request.getUrl().getQuery(), response.getStatusCode() );
+        try {
+            var response = restTemplate.exchange( request, parameterizedTypeReference );
+            if ( ! response.getStatusCode().is2xxSuccessful() ) {
+                log.error( "Can't get sensors meta info, request {}, response status {}", request.getUrl().getQuery(), response.getStatusCode() );
+                throw  new RuntimeException("db-server connection error");
+            }
+            return response.getBody();
+        } catch ( Exception e){
+            log.error( "Can't get sensors meta info, request {}, response error", request.getUrl().getQuery(), e);
             throw  new RuntimeException("db-server connection error");
         }
-        return response.getBody();
+
     }
 }

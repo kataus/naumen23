@@ -7,6 +7,7 @@ import ru.itvitality.meetup.naumen.model.AnyTask;
 import ru.itvitality.meetup.naumen.rest.DataService;
 import ru.itvitality.meetup.naumen.service.HeavyCalculator;
 import ru.itvitality.meetup.naumen.service.HeavyService;
+import ru.itvitality.meetup.naumen.utils.ThreadUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,19 @@ public class HeavyServiceImpl implements HeavyService {
         List<Integer> result = new ArrayList<>();
         var executors = Executors.newFixedThreadPool( 4 );
         IntStream.range( 1, 10 ).forEach( i ->
-            executors.submit( () -> {
-                var itemResult = this.anyAction( new AnyTask( i, "request" + i ) );
-                result.add( itemResult );
-            } )
-         );
+                executors.submit( () -> {
+                    var itemResult = this.anyAction( new AnyTask( i, "request" + i ) );
+                    result.add( itemResult );
+                } )
+        );
         executors.shutdown();
+        while ( ! executors.isTerminated() ) {
+            ThreadUtils.sleep( 1000L );
+            if (Thread.interrupted()){
+                executors.shutdownNow();
+            }
+        }
+        log.error( "=== recalc finished ===" );
         return result.stream()
                 .reduce( 0, ( ( left, right ) -> left + right ) );
     }
@@ -39,7 +47,6 @@ public class HeavyServiceImpl implements HeavyService {
     @Override
     public Integer anyAction( AnyTask task ) {
         var data = dataService.getData( task.getKey() );
-
         return calculator.heavyMethod( data );
     }
 }

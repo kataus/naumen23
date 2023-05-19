@@ -9,6 +9,7 @@ import ru.itvitality.meetup.naumen.service.HeavyService;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Component
 @RequiredArgsConstructor
@@ -21,11 +22,14 @@ public class ScheduledCalculator {
         log.error( "Data calculator starting..." );
         var startDate = new Date();
         var result = - 1;
+        var process = CompletableFuture.supplyAsync( () -> heavyService.recalcData() );
         try {
-            var process = CompletableFuture.supplyAsync( () -> heavyService.recalcData() );
-            result = process.get( 10, TimeUnit.MINUTES );
-        } catch ( Exception e ) {
-            log.error( "=== SCHEDULLED PROCESS ALL HASN'T FINISHED IN TIME === ", e );
+            result = process.get( 10, TimeUnit.SECONDS );
+        } catch ( TimeoutException e ) {
+            log.error( "=== SCHEDULLED PROCESS TIMEOUT === " );
+            process.cancel( true );
+        } catch ( Exception e ){
+            log.error( "=== SCHEDULLED PROCESS ALL HASN'T FINISHED WITH ERROR === ", e );
         }
 
         var endDate = new Date();

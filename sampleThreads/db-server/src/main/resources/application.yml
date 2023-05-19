@@ -1,2 +1,19 @@
 server:
   port: 12001
+
+spring.application.name: db-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOSTNAME}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    metadataMap:
+      "prometheus.path": ${server.servlet.context-path}/actuator/prometheus
+      "prometheus.scrape": "true"
+      "prometheus.port": "${management.server.port}"
+      sys.module: ${spring.application.name}

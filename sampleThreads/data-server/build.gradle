@@ -11,11 +11,12 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'ru.itvitality.meetup.naumen.ApplicationRunner'
+    mainClass = 'ru.itvitality.meetup.naumen.DataServiceRunner'
 }
 
 jar {

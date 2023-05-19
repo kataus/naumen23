@@ -2,6 +2,7 @@ package ru.itvitality.meetup.naumen.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.itvitality.meetup.naumen.model.AnyTask;
 import ru.itvitality.meetup.naumen.rest.DataService;
@@ -10,6 +11,7 @@ import ru.itvitality.meetup.naumen.service.HeavyService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
@@ -21,19 +23,20 @@ public class HeavyServiceImpl implements HeavyService {
     private final HeavyCalculator calculator;
 
     @Override
-    public Integer recalcData() {
+    @Async
+    public CompletableFuture<Integer> recalcData() {
         log.error( "=== recalc starting ===" );
         List<Integer> result = new ArrayList<>();
         var executors = Executors.newFixedThreadPool( 4 );
         IntStream.range( 1, 10 ).forEach( i ->
-            executors.submit( () -> {
-                var itemResult = this.anyAction( new AnyTask( i, "request" + i ) );
-                result.add( itemResult );
-            } )
-         );
+                executors.submit( () -> {
+                    var itemResult = this.anyAction( new AnyTask( i, "request" + i ) );
+                    result.add( itemResult );
+                } )
+        );
         executors.shutdown();
-        return result.stream()
-                .reduce( 0, ( ( left, right ) -> left + right ) );
+        return CompletableFuture.completedFuture( result.stream()
+                .reduce( 0, ( ( left, right ) -> left + right ) ) );
     }
 
     @Override

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.itvitality.meetup.naumen.service.HeavyService;
 
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Component
 @RequiredArgsConstructor
@@ -21,9 +21,11 @@ public class ScheduledCalculator {
         log.error( "Data calculator starting..." );
         var startDate = new Date();
         var result = - 1;
+        var process = heavyService.recalcData();
         try {
-            var process = CompletableFuture.supplyAsync( () -> heavyService.recalcData() );
             result = process.get( 10, TimeUnit.MINUTES );
+        } catch ( TimeoutException e ){
+            process.cancel( true );
         } catch ( Exception e ) {
             log.error( "=== SCHEDULLED PROCESS ALL HASN'T FINISHED IN TIME === ", e );
         }
