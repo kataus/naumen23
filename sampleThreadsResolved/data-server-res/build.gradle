@@ -15,7 +15,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'ru.itvitality.meetup.naumen.ApplicationRunner'
+    mainClass = 'ru.itvitality.meetup.naumen.DataServiceAsyncRunner'
 }
 
 jar {
